@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 char *read_line() {
   char *line = NULL;
@@ -51,6 +54,27 @@ char **parse_line(char *line) {
   return tokens;
 }
 
+int execute(char **args) {
+  pid_t pid = fork();
+  if (pid == 0) {
+    // Child process
+    if (execvp(args[0], args) == -1) {
+      printf("cozsh: execvp failed\n");
+    }
+    exit(EXIT_FAILURE);
+  } else if (pid < 0) {
+    printf("cozsh: fork failed\n");
+    return 1;
+  } else {
+    // Parent process
+    int status;
+    waitpid(pid, &status, 0);
+  }
+
+  return 1;
+}
+
+// Main shell loop
 void shell_loop() {
   char *lines;
   char **args;
@@ -60,11 +84,11 @@ void shell_loop() {
     printf("> ");
     lines = read_line();
     args = parse_line(lines);
-    printf("%s\n", *args);
+    status = execute(args);
 
     free(lines);
     free(args);
-  } while (1);
+  } while (status);
 }
 
 int main() {

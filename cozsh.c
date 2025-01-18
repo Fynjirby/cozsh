@@ -55,6 +55,11 @@ char **parse_line(char *line) {
 }
 
 int execute(char **args) {
+  // Empty command
+  if (args[0] == NULL) {
+    return 1; // do nothing
+  }
+
   pid_t pid = fork();
   if (pid == 0) {
     // Child process

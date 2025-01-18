@@ -54,10 +54,44 @@ char **parse_line(char *line) {
   return tokens;
 }
 
+int handle_builtin(char **args) {
+  if (strcmp(args[0], "cd") == 0) {
+    // cd command
+    if (args[1] == NULL) {
+      printf("cozsh: please specify a directory\n");
+    } else if (chdir(args[1]) != 0) {
+      printf("cozsh: cd failed\n");
+    }
+    return 1;
+  }
+  if (strcmp(args[0], "exit") == 0) {
+    // exit command
+    printf("cozsh: exiting...\n");
+    exit(EXIT_SUCCESS);
+  }
+  if (strcmp(args[0], "help") == 0) {
+    // help command
+    printf("cozsh - a minimal shell :3\n");
+    printf("Builtin commands:\n");
+    printf("  cd <dir>: Change directory\n");
+    printf("  exit: exit cozsh\n");
+    printf("  help: display this help message\n");
+
+    return 1;
+  }
+
+  return 0;
+}
+
 int execute(char **args) {
   // Empty command
   if (args[0] == NULL) {
     return 1; // do nothing
+  }
+
+  // Handle builtin command
+  if (handle_builtin(args) == 1) {
+    return 1;
   }
 
   pid_t pid = fork();

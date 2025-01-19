@@ -1,3 +1,11 @@
+/* cozsh - A minimal shell
+ * Written by Leanghok Oeng
+ *
+ * This is a simple shell that has a couple of built-in commands (cd, exit,
+ * help) and executes external commands via execvp.
+ *
+ * This shell was built for the purpose of learning about C and shell stuff
+ */
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>

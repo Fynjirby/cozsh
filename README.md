@@ -5,6 +5,8 @@ lines of code (including comments)
 
 Feel free to use this as a learning resource or a starting point for your own shell :3
 
+![cozsh screenshow](./screenshot.png)
+
 ## Installation
 
 ```bash

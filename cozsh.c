@@ -84,6 +84,7 @@ int handle_builtin(char **args) {
     printf("  cd <dir>: Change directory\n");
     printf("  exit: exit cozsh\n");
     printf("  help: display this help message\n");
+    printf("Note: You can also use other commands like ls, vim...\n");
 
     return 1;
   }

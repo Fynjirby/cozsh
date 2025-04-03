@@ -13,8 +13,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <signal.h>
 
-char *read_line() {
+char *read_line(void) {
   char *line = NULL;
   size_t bufsize = 0;
 
@@ -72,7 +73,7 @@ int handle_builtin(char **args) {
     }
     return 1;
   }
-  if (strcmp(args[0], "exit") == 0) {
+  if (strcmp(args[0], "exit") == 0 || strcmp(args[0], ":q") == 0) {
     // exit command
     printf("cozsh: exiting...\n");
     exit(EXIT_SUCCESS);
@@ -123,13 +124,24 @@ int execute(char **args) {
 }
 
 // Main shell loop
-void shell_loop() {
+void shell_loop(void) {
   char *lines;
   char **args;
   int status;
+  char cwd[1024];
+  char *home_dir = getenv("HOME"); 
 
   do {
-    printf("> ");
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+      if (strncmp(cwd, home_dir, strlen(home_dir)) == 0) {
+        printf("~%s > ", cwd + strlen(home_dir));
+      } else {
+        printf("%s > ", cwd);
+      }
+    } else {
+      printf("> ");
+    }
+
     lines = read_line();
     args = parse_line(lines);
     status = execute(args);
@@ -139,8 +151,10 @@ void shell_loop() {
   } while (status);
 }
 
-int main() {
-  shell_loop();
+int main(void) {
+ signal(SIGINT, SIG_IGN);
+ 
+ shell_loop();
 
   return EXIT_SUCCESS;
 }

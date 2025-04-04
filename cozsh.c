@@ -6,6 +6,7 @@
  *
  * This shell was built for the purpose of learning about C and shell stuff
  */
+#include <signal.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +14,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <signal.h>
 
 char *read_line(void) {
   char *line = NULL;
@@ -44,11 +44,24 @@ char **parse_line(char *line) {
 
   token = strtok(line, " \t\r\n\a");
   while (token != NULL) {
-    tokens[position] = token;
+    char *home_dir = getenv("HOME");
+
+    if (token[0] == '~') {
+      char *new_token = malloc(strlen(home_dir) + strlen(token) * sizeof(char));
+      if (new_token == NULL) {
+        printf("cozsh: allocation failed\n");
+        exit(EXIT_FAILURE);
+      }
+      sprintf(new_token, "%s%s", home_dir, token + 1);
+      tokens[position] = new_token;
+    } else {
+      tokens[position] = token;
+    }
+
     position++;
 
-    // Reallocate
-    if (position > bufsize) {
+    if (position >= bufsize) {
+      bufsize *= 2;
       tokens = realloc(tokens, bufsize * sizeof(char *));
       if (!tokens) {
         printf("cozsh: allocation failed\n");
@@ -129,7 +142,7 @@ void shell_loop(void) {
   char **args;
   int status;
   char cwd[1024];
-  char *home_dir = getenv("HOME"); 
+  char *home_dir = getenv("HOME");
 
   do {
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
@@ -152,9 +165,9 @@ void shell_loop(void) {
 }
 
 int main(void) {
- signal(SIGINT, SIG_IGN);
- 
- shell_loop();
+  signal(SIGINT, SIG_IGN);
+
+  shell_loop();
 
   return EXIT_SUCCESS;
 }
